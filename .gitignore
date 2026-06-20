@@ -8,6 +8,7 @@ htmlcov/
 dist/
 build/
 .DS_Store
+examples/images/
 
 # 実験結果は再生成可能なため、プレースホルダー以外を除外する
 results/*
