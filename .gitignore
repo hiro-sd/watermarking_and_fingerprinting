@@ -1,0 +1,17 @@
+security/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+.DS_Store
+
+# 実験結果は再生成可能なため、プレースホルダー以外を除外する
+results/*
+!results/.gitkeep
+!results/sample_images/
+results/sample_images/*
+!results/sample_images/.gitkeep
