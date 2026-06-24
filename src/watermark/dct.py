@@ -1,4 +1,6 @@
 """Blind block-DCT watermark with majority-vote repetition."""
+# DCT = Discrete Cosine Transform (離散コサイン変換: 画像を「画素の集まり」から「模様の周波数の集まり」へ変換する処理)
+# 画像における周波数は、色や明るさがどれくらい急激に変化するかを表す。
 
 import numpy as np
 from PIL import Image
