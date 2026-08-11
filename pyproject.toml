@@ -25,6 +25,7 @@ dev = [
 [project.scripts]
 image-fingerprint = "fingerprint.cli:main"
 watermark-benchmark = "evaluation.benchmark:main"
+age-proof-demo = "zkp_demo.age_proof:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
