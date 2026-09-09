@@ -1,0 +1,42 @@
+dataset_dir: examples/images
+output_dir: results/default
+payload: creator-123
+
+watermarks:
+  lsb: {}
+  dct:
+    strength: 45
+    repetition: 5
+
+attacks:
+  - name: jpeg
+    variants:
+      - {quality: 90}
+      - {quality: 70}
+      - {quality: 50}
+      - {quality: 30}
+  - name: resize
+    variants:
+      - {scale: 0.75}
+      - {scale: 0.5}
+      - {scale: 0.25}
+  - name: crop
+    variants:
+      - {crop_ratio: 0.05}
+      - {crop_ratio: 0.1}
+      - {crop_ratio: 0.2}
+  - name: rotate
+    variants:
+      - {angle: 1}
+      - {angle: 5}
+      - {angle: 15}
+  - name: noise
+    variants:
+      - {sigma: 2, seed: 42}
+      - {sigma: 5, seed: 42}
+      - {sigma: 10, seed: 42}
+  - name: brightness
+    variants:
+      - {factor: 0.7}
+      - {factor: 1.1}
+      - {factor: 1.3}

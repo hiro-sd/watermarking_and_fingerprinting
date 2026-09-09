@@ -92,7 +92,7 @@ def run_benchmark(config_path: str | Path) -> tuple[pd.DataFrame, pd.DataFrame]:
     raw.to_csv(output_dir / "raw_results.csv", index=False)
     summary.to_csv(output_dir / "summary.csv", index=False)
     create_plots(summary, output_dir)
-    _write_report(config_path, dataset_dir, raw, summary, output_dir)
+    _write_report(config_path, dataset_dir, raw, summary, output_dir, root)
     return raw, summary
 
 
@@ -192,12 +192,15 @@ def _write_report(
     raw: pd.DataFrame,
     summary: pd.DataFrame,
     output_dir: Path,
+    root: Path,
 ) -> None:
     table = _markdown_table(summary.round(4))
+    display_config = _display_path(config_path, root)
+    display_dataset = _display_path(dataset_dir, root)
     report = f"""# Benchmark report
 
-- Configuration: `{config_path}`
-- Dataset: `{dataset_dir}`
+- Configuration: `{display_config}`
+- Dataset: `{display_dataset}`
 - Images: {raw['image'].nunique()}
 - Evaluations: {len(raw)}
 
@@ -209,6 +212,15 @@ def _write_report(
 watermarked image against its unwatermarked source.
 """
     (output_dir / "report.md").write_text(report, encoding="utf-8")
+
+
+def _display_path(path: Path, root: Path) -> str:
+    """Prefer a repository-relative path in generated public reports."""
+
+    try:
+        return path.resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return path.name
 
 
 def _markdown_table(frame: pd.DataFrame) -> str:

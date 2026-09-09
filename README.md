@@ -2,9 +2,39 @@
 
 [English](README.en.md)
 
-画像ウォーターマークと知覚フィンガープリントが、一般的な画像加工にどの程度耐えられるかを、再現可能な条件で測定する学習・検証プロジェクトです。
+LSBおよびblock-DCTウォーターマーク、dHash／pHashフィンガープリントを実装し、6種類の画像加工に対する耐性を評価した学習・検証プロジェクトです。DCT方式はJPEG圧縮や軽度のリサイズには耐えた一方、回転・切り抜きでは8×8ブロックの同期を失い、抽出に失敗しました。
 
 付属の`zkp_demo`では、セキュリティ学習の別テーマとして、正確な年齢や生年月日を検証者へ渡さず「指定年齢以上」という条件だけを確認する概念デモも扱います。
+
+## 代表結果
+
+最新の応募用スナップショットは、合成画像3枚と自分で撮影した写真2枚の計5枚、識別子`creator-123`、DCT強度45・反復5を用いた200評価です。
+
+| 評価項目 | 結果 |
+|---|---:|
+| DCT：JPEG品質90 / 70 / 50 / 30 | すべて完全復元率100% |
+| DCT：リサイズ75% / 50% | 完全復元率100% |
+| DCT：リサイズ25% | 完全復元率0% |
+| DCT：切り抜き5% / 10% / 20% | すべて完全復元率0% |
+| DCT：回転1° / 5° / 15° | すべて完全復元率0% |
+| 無加工DCT画像の画質 | 平均PSNR 39.63 dB、平均SSIM 0.946 |
+
+今回の5枚は方式一般の性能を示すには少なく、回転・切り抜きへの同期対策、BER、異画像ペアを含むROC評価が未解決です。詳細値の唯一の記録は、保存済みの[生成レポート](results/application_snapshot/report.md)と[集計CSV](results/application_snapshot/summary.csv)です。
+
+![ウォーターマーク完全復元率](results/application_snapshot/watermark_detection_rate.png)
+
+## 最短の再現手順
+
+```bash
+python3 -m venv security
+source security/bin/activate
+python -m pip install -e '.[dev]'
+python examples/generate_samples.py
+watermark-benchmark --config configs/default.yaml
+pytest
+```
+
+`examples/generate_samples.py`は公開可能な合成画像3枚を生成します。応募用スナップショットには非公開の自作写真2枚も使用しているため、公開リポジトリだけで再実行した場合は対象画像数と集計値が異なります。
 
 ## 背景と目的
 
@@ -79,31 +109,18 @@ watermark-benchmark --config configs/default.yaml
 - `fingerprint_distance.png`: dHash・pHashの平均ハミング距離
 - `image_quality.png`: 平均PSNR・SSIM
 
-## 初期実験結果
+## 保存済みの応募用スナップショット
 
-合成画像3枚に加えて、自分で追加した写真画像2枚（`beach.png`, `myself.png`）を含む計5枚、識別子`creator-123`、DCT強度45・反復5で、200組み合わせを実行した結果です。小規模なデータによるパイプライン確認であり、方式一般の性能を示す結論ではありません。
+代表結果は`results/application_snapshot/`に保存しています。生画像と画像単位の全中間結果は含めず、実験条件、集計値、自動生成レポート、3種類のグラフだけを公開対象にしています。
 
-| 条件 | LSB完全復元率 | DCT完全復元率 |
-|---|---:|---:|
-| 加工なし | 100% | 100% |
-| JPEG品質90 / 70 / 50 / 30 | すべて0% | すべて100% |
-| リサイズ75% / 50% | 0% | 100% |
-| リサイズ25% | 0% | 0% |
-| 中央切り抜き5% / 10% / 20% | すべて0% | すべて0% |
-| 回転1° / 5° / 15° | すべて0% | すべて0% |
-| ノイズσ=2 / 5 / 10 | すべて0% | すべて100% |
-| 明るさ0.7 / 1.1 | 0% | 100% |
-| 明るさ1.3 | 0% | 80% |
+- [実験設定](results/application_snapshot/config.yaml)
+- [全40条件の生成レポート](results/application_snapshot/report.md)
+- [集計CSV](results/application_snapshot/summary.csv)
+- [ウォーターマーク完全復元率](results/application_snapshot/watermark_detection_rate.png)
+- [知覚フィンガープリント距離](results/application_snapshot/fingerprint_distance.png)
+- [PSNRおよびSSIM](results/application_snapshot/image_quality.png)
 
-加工なしのDCT埋め込み画像は平均PSNR 39.63 dB、平均SSIM 0.946でした。LSBは加工なしでは完全復元できる一方、JPEG圧縮・リサイズ・切り抜き・回転・ノイズ・明るさ変更のすべてで復元に失敗しました。DCTはJPEG圧縮、軽いリサイズ、ノイズ、明るさ変更に比較的強い一方、切り抜きや回転では8×8ブロック境界との同期を失いやすく、今回の条件では復元できませんでした。
-
-全測定値と画像単位の失敗は`results/default/raw_results.csv`、集計値は`summary.csv`で確認できます。
-
-![ウォーターマーク完全復元率](docs/assets/watermark_detection_rate.png)
-
-![知覚フィンガープリント距離](docs/assets/fingerprint_distance.png)
-
-![PSNRおよびSSIM](docs/assets/image_quality.png)
+LSBは加工なしでは完全復元できる一方、すべての画像加工で復元に失敗しました。DCTはJPEG圧縮、軽いリサイズ、ノイズ、明るさ変更に比較的強く、切り抜きや回転では8×8ブロック境界との同期を失って復元できませんでした。
 
 任意の画像を使う場合は、画像フォルダを用意し、[configs/default.yaml](configs/default.yaml)の`dataset_dir`を変更してください。DCT方式は8×8ブロックを使用し、反復回数に応じた容量が必要です。
 

@@ -13,6 +13,14 @@ examples/images/
 # 実験結果は再生成可能なため、プレースホルダー以外を除外する
 results/*
 !results/.gitkeep
+!results/application_snapshot/
+results/application_snapshot/*
+!results/application_snapshot/config.yaml
+!results/application_snapshot/summary.csv
+!results/application_snapshot/report.md
+!results/application_snapshot/watermark_detection_rate.png
+!results/application_snapshot/fingerprint_distance.png
+!results/application_snapshot/image_quality.png
 !results/sample_images/
 results/sample_images/*
 !results/sample_images/.gitkeep
